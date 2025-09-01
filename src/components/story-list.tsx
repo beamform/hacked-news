@@ -49,7 +49,7 @@ export function StoryList({ stories }: StoryListProps) {
                 >
                   {story.title}
                 </a>
-                {domain && <span className="text-gray-500"> ({domain})</span>}
+                {domain && <span className="text-xs text-gray-500"> ({domain})</span>}
               </div>
               <div className="text-xs text-gray-500">
                 {story.score} points by {story.by} {formatTimeAgo(story.time)}
