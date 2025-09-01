@@ -13,6 +13,24 @@ function extractDomain(url: string | undefined): string | null {
   }
 }
 
+function formatTimeAgo(timestamp: number): string {
+  const now = Date.now() / 1000;
+  const diffInSeconds = now - timestamp;
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInDays > 0) {
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  } else if (diffInHours > 0) {
+    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+  } else if (diffInMinutes > 0) {
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+  } else {
+    return 'just now';
+  }
+}
+
 export function StoryList({ stories }: StoryListProps) {
   return (
     <ul>
@@ -34,7 +52,7 @@ export function StoryList({ stories }: StoryListProps) {
                 {domain && <span className="text-gray-500"> ({domain})</span>}
               </div>
               <div className="text-xs text-gray-500">
-                {story.score} points by {story.by}
+                {story.score} points by {story.by} {formatTimeAgo(story.time)}
               </div>
             </div>
           </li>
