@@ -1,6 +1,8 @@
 import type { Comment } from '@/lib/hacker-news';
 import { getComment } from '@/lib/hacker-news';
 import { ParentLink } from './parent-link';
+import { NextLink } from './next-link';
+import { PrevLink } from './prev-link';
 
 function formatTimeAgo(timestamp: number): string {
   const now = Date.now() / 1000;
@@ -97,9 +99,11 @@ interface CommentProps {
   comment: Comment;
   depth?: number;
   storyId: number;
+  nextSiblingId?: number | null;
+  prevSiblingId?: number | null;
 }
 
-async function CommentItem({ comment, depth = 0, storyId }: CommentProps) {
+async function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId }: CommentProps) {
   if (comment.deleted || comment.dead || !comment.text) {
     return null;
   }
@@ -125,13 +129,36 @@ async function CommentItem({ comment, depth = 0, storyId }: CommentProps) {
             <ParentLink parentId={comment.parent} storyId={storyId} />
           </>
         )}
+        {prevSiblingId && (
+          <>
+            {' | '}
+            <PrevLink prevCommentId={prevSiblingId} />
+          </>
+        )}
+        {nextSiblingId && (
+          <>
+            {' | '}
+            <NextLink nextCommentId={nextSiblingId} />
+          </>
+        )}
       </div>
       <div className="text-sm text-black mb-2">
         {parseHtmlContent(comment.text)}
       </div>
-      {childComments.map(child => (
-        <CommentItem key={child.id} comment={child} depth={depth + 1} storyId={storyId} />
-      ))}
+      {childComments.map((child, index) => {
+        const prevSibling = index > 0 ? childComments[index - 1].id : null;
+        const nextSibling = index < childComments.length - 1 ? childComments[index + 1].id : null;
+        return (
+          <CommentItem 
+            key={child.id} 
+            comment={child} 
+            depth={depth + 1} 
+            storyId={storyId}
+            prevSiblingId={prevSibling}
+            nextSiblingId={nextSibling}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -144,9 +171,19 @@ interface CommentThreadProps {
 export async function CommentThread({ comments, storyId }: CommentThreadProps) {
   return (
     <div>
-      {comments.map(comment => (
-        <CommentItem key={comment.id} comment={comment} storyId={storyId} />
-      ))}
+      {comments.map((comment, index) => {
+        const prevSibling = index > 0 ? comments[index - 1].id : null;
+        const nextSibling = index < comments.length - 1 ? comments[index + 1].id : null;
+        return (
+          <CommentItem 
+            key={comment.id} 
+            comment={comment} 
+            storyId={storyId}
+            prevSiblingId={prevSibling}
+            nextSiblingId={nextSibling}
+          />
+        );
+      })}
     </div>
   );
 }
