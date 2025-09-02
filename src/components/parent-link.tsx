@@ -18,23 +18,11 @@ export function ParentLink({ parentId, storyId }: ParentLinkProps) {
     }
     
     if (element) {
-      // Add highlight animation
-      element.style.backgroundColor = '#fef9c3'; // yellow-100
-      element.style.transition = 'background-color 0.3s ease';
-      
       // Scroll to element - position just below top of viewport
       element.scrollIntoView({ 
         behavior: 'smooth',
         block: 'start'
       });
-      
-      // Remove highlight after animation
-      setTimeout(() => {
-        element.style.backgroundColor = 'transparent';
-        setTimeout(() => {
-          element.style.transition = '';
-        }, 300);
-      }, 1000);
     } else {
       // Final fallback to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
