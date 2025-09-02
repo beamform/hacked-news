@@ -17,9 +17,7 @@ Create a simple Hacker News client that displays the top stories page (equivalen
 
 ### 2. Components
 - [x] Build `StoryList` component to render list of stories
-- [x] Each story displays as a simple link with title
-- [x] No additional metadata (score, comments, etc.)
-
+- [x] Each story displays as a link with title and additional metadata (score, author, time, comments count)
 ### 3. Page Implementation
 - [x] Replace default Next.js home page
 - [x] Integrate story list component
