@@ -76,7 +76,17 @@ async function fetchAllComments(commentIds: number[], allComments: Map<number, C
   return allComments;
 }
 
-export async function getStoryWithComments(id: number): Promise<{ story: Story; comments: Comment[] }> {
+function buildCommentTree(commentIds: number[], allComments: Map<number, Comment>): (Comment & { children?: Comment[] })[] {
+  return commentIds
+    .map(id => allComments.get(id))
+    .filter((comment): comment is Comment => !!comment)
+    .map(comment => ({
+      ...comment,
+      children: comment.kids ? buildCommentTree(comment.kids, allComments) : []
+    }));
+}
+
+export async function getStoryWithComments(id: number): Promise<{ story: Story; comments: (Comment & { children?: Comment[] })[] }> {
   const story = await getStory(id);
   
   if (!story.kids || story.kids.length === 0) {
@@ -86,14 +96,12 @@ export async function getStoryWithComments(id: number): Promise<{ story: Story; 
   // Fetch all comments recursively
   const allCommentsMap = await fetchAllComments(story.kids);
   
-  // Return only top-level comments, but all comments are now available for parent links
-  const topLevelComments = story.kids
-    .map(id => allCommentsMap.get(id))
-    .filter((comment): comment is Comment => !!comment);
+  // Build comment tree structure
+  const commentTree = buildCommentTree(story.kids, allCommentsMap);
   
   return { 
     story, 
-    comments: topLevelComments
+    comments: commentTree
   };
 }
 
