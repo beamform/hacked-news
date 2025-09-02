@@ -6,6 +6,7 @@ import { ParentLink } from './parent-link';
 import { NextLink } from './next-link';
 import { PrevLink } from './prev-link';
 import { CollapseLink } from './collapse-link';
+import { RootLink } from './root-link';
 
 function formatTimeAgo(timestamp: number): string {
   const now = Date.now() / 1000;
@@ -99,9 +100,10 @@ interface CommentItemProps {
   prevSiblingId?: number | null;
   collapsedComments: Set<number>;
   onToggleCollapse: (commentId: number) => void;
+  rootCommentId?: number;
 }
 
-function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId, collapsedComments, onToggleCollapse }: CommentItemProps) {
+function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId, collapsedComments, onToggleCollapse, rootCommentId }: CommentItemProps) {
   if (comment.deleted || comment.dead || !comment.text) {
     return null;
   }
@@ -113,6 +115,12 @@ function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId
     <div id={`comment-${comment.id}`} className={`${depth > 0 ? 'ml-6 border-l border-gray-200 pl-4' : ''} mb-2`}>
       <div className="text-xs text-gray-500 mb-1">
         {comment.by} {formatTimeAgo(comment.time)}
+        {rootCommentId && rootCommentId !== comment.id && (
+          <>
+            {' | '}
+            <RootLink rootCommentId={rootCommentId} />
+          </>
+        )}
         {comment.parent && (
           <>
             {' | '}
@@ -141,7 +149,7 @@ function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId
       </div>
       {!isCollapsed && (
         <>
-          <div className="text-sm text-black mb-2">
+          <div className="text-xs text-black mb-2">
             {parseHtmlContent(comment.text)}
           </div>
           {comment.children && comment.children.map((child, index) => {
@@ -157,6 +165,7 @@ function CommentItem({ comment, depth = 0, storyId, nextSiblingId, prevSiblingId
                 nextSiblingId={nextSibling}
                 collapsedComments={collapsedComments}
                 onToggleCollapse={onToggleCollapse}
+                rootCommentId={rootCommentId || comment.id}
               />
             );
           })}
@@ -200,6 +209,7 @@ export function CommentThreadClient({ comments, storyId }: CommentThreadClientPr
             nextSiblingId={nextSibling}
             collapsedComments={collapsedComments}
             onToggleCollapse={handleToggleCollapse}
+            rootCommentId={comment.id}
           />
         );
       })}
