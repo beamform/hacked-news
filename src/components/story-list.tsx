@@ -1,4 +1,4 @@
-import { Story } from '@/lib/hacker-news';
+import type { Story } from '@/lib/hacker-news';
 
 interface StoryListProps {
   stories: Story[];
