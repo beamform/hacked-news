@@ -52,7 +52,15 @@ export function StoryList({ stories }: StoryListProps) {
                 {domain && <span className="text-xs text-gray-500"> ({domain})</span>}
               </div>
               <div className="text-xs text-gray-500">
-                {story.score} points by {story.by} {formatTimeAgo(story.time)}
+                {story.score} points by {story.by} {formatTimeAgo(story.time)} | {' '}
+                <a 
+                  href={`https://news.ycombinator.com/item?id=${story.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:underline"
+                >
+                  {story.descendants || 0} comments
+                </a>
               </div>
             </div>
           </li>
