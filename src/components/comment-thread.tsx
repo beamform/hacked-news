@@ -20,31 +20,77 @@ function formatTimeAgo(timestamp: number): string {
   }
 }
 
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&amp;/g, '&')
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x2F;/g, '/')
+    .replace(/&#x3A;/g, ':')
+    .replace(/&#x3D;/g, '=')
+    .replace(/&#x3F;/g, '?');
+}
+
 function parseHtmlContent(html: string): JSX.Element[] {
   // Split by <p> tags to create separate paragraphs
-  const paragraphs = html
-    .split(/<p>/)
-    .filter(p => p.trim())
-    .map(p => {
-      // Clean up the paragraph content
-      return p
-        .replace(/<\/p>/g, '')
-        .replace(/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g, '$2 ($1)')
-        .replace(/<[^>]*>/g, '')
-        .replace(/&gt;/g, '>')
-        .replace(/&lt;/g, '<')
-        .replace(/&amp;/g, '&')
-        .replace(/&#x27;/g, "'")
-        .replace(/&quot;/g, '"')
-        .trim();
-    })
-    .filter(p => p);
+  const paragraphHtml = html.split(/<p>/).filter(p => p.trim());
+  
+  return paragraphHtml.map((pContent, index) => {
+    // Remove closing </p> tag
+    const cleanContent = pContent.replace(/<\/p>/g, '');
+    
+    return (
+      <p key={index} className="leading-snug mb-2 last:mb-0">
+        {renderTextWithLinks(cleanContent)}
+      </p>
+    );
+  });
+}
 
-  return paragraphs.map((paragraph, index) => (
-    <p key={index} className="leading-snug mb-2 last:mb-0">
-      {paragraph}
-    </p>
-  ));
+function renderTextWithLinks(html: string): (string | JSX.Element)[] {
+  const result: (string | JSX.Element)[] = [];
+  let remaining = html;
+  let key = 0;
+  
+  while (remaining) {
+    // Find the next link
+    const linkMatch = remaining.match(/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/);
+    
+    if (linkMatch) {
+      const [fullMatch, url, linkText] = linkMatch;
+      const beforeLink = remaining.substring(0, linkMatch.index!);
+      
+      // Add text before the link
+      if (beforeLink) {
+        result.push(decodeHtmlEntities(beforeLink));
+      }
+      
+      // Add the link
+      const decodedUrl = decodeHtmlEntities(url);
+      result.push(
+        <a
+          key={key++}
+          href={decodedUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-black underline"
+        >
+          {decodeHtmlEntities(linkText)}
+        </a>
+      );
+      
+      // Continue with the rest
+      remaining = remaining.substring(linkMatch.index! + fullMatch.length);
+    } else {
+      // No more links, add remaining text
+      result.push(decodeHtmlEntities(remaining.replace(/<[^>]*>/g, '')));
+      break;
+    }
+  }
+  
+  return result;
 }
 
 interface CommentProps {
