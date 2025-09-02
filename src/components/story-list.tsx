@@ -54,9 +54,7 @@ export function StoryList({ stories }: StoryListProps) {
               <div className="text-xs text-gray-500">
                 {story.score} points by {story.by} {formatTimeAgo(story.time)} | {' '}
                 <a 
-                  href={`https://news.ycombinator.com/item?id=${story.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/comments/${story.id}`}
                   className="text-gray-500 hover:underline"
                 >
                   {story.descendants || 0} comments
