@@ -7,6 +7,7 @@ export interface Story {
   by: string;
   time: number;
   score: number;
+  descendants?: number;
 }
 
 export async function getTopStoryIds(): Promise<number[]> {

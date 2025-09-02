@@ -37,15 +37,15 @@ export function StoryList({ stories }: StoryListProps) {
       {stories.map((story, index) => {
         const domain = extractDomain(story.url);
         return (
-          <li key={story.id} className="flex mb-2">
-            <span className="text-right w-8 mr-2 text-gray-500">{index + 1}.</span>
+          <li key={story.id} className="flex mb-1">
+            <span className="text-right w-8 mr-2 text-gray-500 text-sm leading-5">{index + 1}.</span>
             <div>
-              <div>
+              <div className="leading-5">
                 <a
                   href={story.url || `https://news.ycombinator.com/item?id=${story.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-black"
+                  className="text-black text-sm"
                 >
                   {story.title}
                 </a>
